@@ -8,16 +8,14 @@ from pyphare.pharein import ElectromagDiagnostics, FluidDiagnostics, ParticleDia
 from pyphare.pharein import ElectronModel
 from pyphare.simulator.simulator import Simulator
 from pyphare.pharein import global_vars as gv
-# from pyphare.pharesee.run import Run
+from pyphare.pharesee.run import Run
 
 
-# import matplotlib.pyplot as plt
-# import matplotlib as mpl
+import matplotlib.pyplot as plt
+import matplotlib as mpl
 import numpy as np
-# mpl.use('Agg')
+mpl.use('Agg')
 
-
-from tests.diagnostic import all_timestamps
 
 def density(x):
     return 1.
@@ -36,7 +34,7 @@ def bz(x):
 
 
 def T(x):
-    return 0.01
+    return 0.1
 
 
 def vWeak(x):
@@ -101,20 +99,17 @@ def config(**kwargs):
         ElectromagDiagnostics(
             quantity=quantity,
             write_timestamps=timestamps,
-            #  compute_timestamps=timestamps,
         )
 
 
-    for quantity in ["charge_density", "bulkVelocity"]:
+    for quantity in ["density", "charge_density", "bulkVelocity"]:
         FluidDiagnostics(
             quantity=quantity,
             write_timestamps=timestamps,
-            #  compute_timestamps=timestamps,
             )
 
     for quantity in ['domain']:  # , 'levelGhost', 'patchGhost']:
         ParticleDiagnostics(quantity=quantity,
-                            #  compute_timestamps=timestamps,
                             write_timestamps=timestamps,
                             population_name="protons")
 
@@ -130,7 +125,7 @@ def main():
     if len(sys.argv)>1:
         Te = float(sys.argv[1])
     else:
-        Te = 0.05
+        Te = 0.
     diagdir = f"wp_{Te}"
     config(diagdir=diagdir, Te=Te)
     Simulator(gv.sim).run()

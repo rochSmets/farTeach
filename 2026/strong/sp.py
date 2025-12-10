@@ -9,25 +9,25 @@ from pyphare.simulator.simulator import Simulator
 from pyphare.pharein import global_vars as gv
 from pyphare.pharesee.run import Run
 
+
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
 mpl.use('Agg')
 
 
-
 def config(**kwargs):
 
     Simulation(
-        time_step=0.005,
-        final_time=100.,
+        time_step=0.001,
+        final_time=20.,
         boundary_types="periodic",
-        hyper_resistivity=0.001,
+        hyper_resistivity=0.02 ,
         cells=512,
         dl=0.25,
         diag_options={"format": "phareh5",
                       "options": {"dir": kwargs["diagdir"],
-                                  "mode": "overwrite"}
+                                  "mode":"overwrite"}
                      }
     )
 
@@ -43,22 +43,19 @@ def config(**kwargs):
     def bz(x):
         return 0.0
 
-    def vWeak(x):
+    def vStrong(x):
         from pyphare.pharein.global_vars import sim
         L = sim.simulation_domain()[0]
-        x0 = 0.5*L
-        sigma = 2.0
-        bubble = 0.08*np.exp(-(x-x0)**2/(2*sigma**2))
-        return bubble
+        return np.sin(2*np.pi/L*x)*1.5
 
     def vNull(x):
         return 0.
 
     def vth(x):
-        Ti=kwargs.get("Ti", 0.)
+        Ti=kwargs.get("Ti", 0.005)
         return np.sqrt(Ti)
 
-    vvv = {"vbulkx": vWeak,
+    vvv = {"vbulkx": vStrong,
            "vbulky": vNull,
            "vbulkz": vNull,
            "vthx": vth,
@@ -71,14 +68,15 @@ def config(**kwargs):
                          protons={"charge": 1,
                                   "density": density,
                                   "nbr_part_per_cell": 200,
-                                   **vvv}
+                                  **vvv}
                         )
 
-    ElectronModel(closure="isothermal", Te=kwargs.get("Te", 0.))
+    ElectronModel(closure="isothermal", Te=kwargs.get("Te", 0.005))
 
     sim = ph.global_vars.sim
-    dt = sim.time_step*100
+    dt = sim.time_step*500
     timestamps = np.arange(0,sim.final_time+dt, dt)
+
 
     for quantity in ["E", "B"]:
         ElectromagDiagnostics(
@@ -92,12 +90,11 @@ def config(**kwargs):
             write_timestamps=timestamps,
             )
 
+
     for quantity in ['domain']:  # , 'levelGhost', 'patchGhost']:
         ParticleDiagnostics(quantity=quantity,
                             write_timestamps=timestamps,
                             population_name="protons")
-
-
 
 
 def main():
@@ -122,4 +119,3 @@ def main():
 
 if __name__=="__main__":
     main()
-
