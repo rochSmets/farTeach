@@ -9,7 +9,6 @@ from pyphare.simulator.simulator import Simulator
 from pyphare.pharein import global_vars as gv
 from pyphare.pharesee.run import Run
 
-import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
 mpl.use('Agg')
@@ -116,8 +115,6 @@ def main():
     config(diagdir=diagdir, Te=Te, Ti=Ti)
     Simulator(gv.sim).run()
     gv.sim = None
-
-
 
 
 if __name__=="__main__":
